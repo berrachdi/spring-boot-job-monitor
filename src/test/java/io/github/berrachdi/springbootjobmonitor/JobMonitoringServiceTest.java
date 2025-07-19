@@ -1,4 +1,4 @@
-package org.medtech.springbootjobmonitor;
+package io.github.berrachdi.springbootjobmonitor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
