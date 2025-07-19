@@ -1,6 +1,6 @@
-package org.medtech.springbootjobmonitor.storage;
+package io.github.berrachdi.springbootjobmonitor.storage;
 
-import org.medtech.springbootjobmonitor.model.JobExecutionLog;
+import io.github.berrachdi.springbootjobmonitor.model.JobExecutionLog;
 
 import java.util.List;
 import java.util.Map;
