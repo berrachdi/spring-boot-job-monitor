@@ -1,6 +1,6 @@
-package org.medtech.springbootjobmonitor.storage;
+package io.github.berrachdi.springbootjobmonitor.storage;
 
-import org.medtech.springbootjobmonitor.model.JobExecutionLog;
+import io.github.berrachdi.springbootjobmonitor.model.JobExecutionLog;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 

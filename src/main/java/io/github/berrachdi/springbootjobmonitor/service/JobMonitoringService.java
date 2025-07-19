@@ -1,7 +1,7 @@
-package org.medtech.springbootjobmonitor.service;
+package io.github.berrachdi.springbootjobmonitor.service;
 
-import org.medtech.springbootjobmonitor.model.JobExecutionLog;
-import org.medtech.springbootjobmonitor.storage.JobLogStorage;
+import io.github.berrachdi.springbootjobmonitor.model.JobExecutionLog;
+import io.github.berrachdi.springbootjobmonitor.storage.JobLogStorage;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
