@@ -1,10 +1,10 @@
-package org.medtech.springbootjobmonitor;
+package io.github.berrachdi.springbootjobmonitor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.medtech.springbootjobmonitor.model.JobExecutionLog;
-import org.medtech.springbootjobmonitor.service.JobMonitoringService;
-import org.medtech.springbootjobmonitor.storage.JobLogStorage;
+import io.github.berrachdi.springbootjobmonitor.model.JobExecutionLog;
+import io.github.berrachdi.springbootjobmonitor.service.JobMonitoringService;
+import io.github.berrachdi.springbootjobmonitor.storage.JobLogStorage;
 
 import java.time.LocalDateTime;
 import java.util.*;
