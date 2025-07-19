@@ -1,4 +1,4 @@
-package org.medtech.springbootjobmonitor.model;
+package io.github.berrachdi.springbootjobmonitor.model;
 
 import java.time.LocalDateTime;
 

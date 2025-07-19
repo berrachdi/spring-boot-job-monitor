@@ -1,8 +1,8 @@
-package org.medtech.springbootjobmonitor.autoconfig;
+package io.github.berrachdi.springbootjobmonitor.autoconfig;
 
-import org.medtech.springbootjobmonitor.storage.InMemoryJobLogStorage;
-import org.medtech.springbootjobmonitor.storage.JdbcJobLogStorage;
-import org.medtech.springbootjobmonitor.storage.JobLogStorage;
+import io.github.berrachdi.springbootjobmonitor.storage.InMemoryJobLogStorage;
+import io.github.berrachdi.springbootjobmonitor.storage.JdbcJobLogStorage;
+import io.github.berrachdi.springbootjobmonitor.storage.JobLogStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

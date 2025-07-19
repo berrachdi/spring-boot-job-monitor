@@ -1,7 +1,7 @@
-package org.medtech.springbootjobmonitor.controller;
+package io.github.berrachdi.springbootjobmonitor.controller;
 
-import org.medtech.springbootjobmonitor.model.JobExecutionLog;
-import org.medtech.springbootjobmonitor.service.JobMonitoringService;
+import io.github.berrachdi.springbootjobmonitor.model.JobExecutionLog;
+import io.github.berrachdi.springbootjobmonitor.service.JobMonitoringService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

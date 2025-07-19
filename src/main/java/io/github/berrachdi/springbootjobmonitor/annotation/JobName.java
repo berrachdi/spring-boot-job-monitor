@@ -1,4 +1,4 @@
-package org.medtech.springbootjobmonitor.annotation;
+package io.github.berrachdi.springbootjobmonitor.annotation;
 
 import java.lang.annotation.*;
 
