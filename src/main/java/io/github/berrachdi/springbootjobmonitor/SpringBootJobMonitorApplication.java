@@ -1,4 +1,4 @@
-package org.medtech.springbootjobmonitor;
+package io.github.berrachdi.springbootjobmonitor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;

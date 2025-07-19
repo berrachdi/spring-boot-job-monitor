@@ -1,11 +1,11 @@
-package org.medtech.springbootjobmonitor.aspect;
+package io.github.berrachdi.springbootjobmonitor.aspect;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.medtech.springbootjobmonitor.annotation.JobName;
-import org.medtech.springbootjobmonitor.model.JobExecutionLog;
-import org.medtech.springbootjobmonitor.service.JobMonitoringService;
+import io.github.berrachdi.springbootjobmonitor.annotation.JobName;
+import io.github.berrachdi.springbootjobmonitor.model.JobExecutionLog;
+import io.github.berrachdi.springbootjobmonitor.service.JobMonitoringService;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

@@ -8,7 +8,7 @@
         <version>3.5.3</version>
         <relativePath/>
     </parent>
-    <groupId>org.medtech</groupId>
+    <groupId>io.github.berrachdi</groupId>
     <artifactId>spring-boot-job-monitor</artifactId>
     <version>0.0.1</version>
     <name>spring-boot-job-monitor</name>
