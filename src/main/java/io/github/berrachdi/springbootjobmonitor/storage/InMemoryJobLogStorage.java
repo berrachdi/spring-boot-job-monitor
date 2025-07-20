@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * In-memory implementation of JobLogStorage.
  * This class stores job execution logs in memory using a ConcurrentHashMap.
+ *
+ * @author Mohamed Berrachdi
  */
 public class InMemoryJobLogStorage implements JobLogStorage{
     private final Map<String, List<JobExecutionLog>> logs = new ConcurrentHashMap<>();

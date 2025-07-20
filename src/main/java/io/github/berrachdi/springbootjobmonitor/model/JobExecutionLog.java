@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
  * @param durationMs
  * @param success
  * @param errorMessage
+ *
+ * @author Mohamed Berrachdi
  */
 public record JobExecutionLog(
         String jobName,
