@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 /**
  * Implementation of JobLogStorage that uses JDBC to store job execution logs.
+ *
+ * @author Mohamed Berrachdi
  */
 public class JdbcJobLogStorage implements JobLogStorage{
     public static final String JOB_NAME = "job_name";

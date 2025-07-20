@@ -14,7 +14,7 @@
     <name>spring-boot-job-monitor</name>
     <description>spring-boot-job-monitor</description>
     <packaging>jar</packaging>
-    <url/>
+    <url>https://github.com/berrachdi/spring-boot-job-monitor</url>
     <licenses>
         <license>
             <name>MIT License</name>
@@ -25,11 +25,11 @@
         <developer>
             <id>berrachdi</id>
             <name>Mohamed Berrachdi</name>
-            <email>berrachdim@gmail.com</email>
+            <email>mohamed_berrachdi@um5.ac.ma</email>
         </developer>
     </developers>
     <scm>
-        <url>https://github.com/berrachdi/spring-boot-job-monitor</url>
+        <url>https://github.com/berrachdi/spring-boot-job-monitor/main</url>
         <connection>scm:git:git://github.com/berrachdi/spring-boot-job-monitor.git</connection>
     </scm>
     <properties>
@@ -69,6 +69,47 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

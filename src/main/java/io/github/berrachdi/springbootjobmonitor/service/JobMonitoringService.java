@@ -10,6 +10,8 @@ import java.util.Map;
 /**
  * Service for monitoring job executions and storing logs.
  * This service allows adding logs for specific jobs and retrieving logs for all jobs or a specific job.
+ *
+ * @author Mohamed Berrachdi
  */
 @Service
 public class JobMonitoringService {

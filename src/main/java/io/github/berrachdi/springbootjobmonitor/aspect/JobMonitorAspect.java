@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
  * This aspect intercepts methods annotated with @Scheduled,
  * records their execution time, success status, and any error messages,
  * and stores this information in a JobExecutionLog.
+ *
+ * @author Mohamed Berrachdi
  */
 @Component
 @Aspect

@@ -10,6 +10,8 @@ import java.util.Map;
  * This interface defines methods to add logs for a specific job,
  * retrieve logs for a specific job, and get all job names
  * that have logs stored.
+ *
+ * @author Mohamed Berrachdi
  */
 public interface JobLogStorage {
     void addLog(String jobName, JobExecutionLog log);

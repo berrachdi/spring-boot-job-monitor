@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controller for managing job execution logs.
+ * This controller provides endpoints to retrieve logs for all jobs and for a specific job.
+ *
+ * @author Mohamed Berrachdi
+ */
 @RestController
 @RequestMapping("/job-monitor")
 public class JobMonitorController {
