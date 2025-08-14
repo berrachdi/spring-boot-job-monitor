@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${logs[0].jobName} + ' - Execution History'">Job Executions</title>
+  <link rel="stylesheet" href="/webjars/bootstrap/5.3.0/css/bootstrap.min.css">
+  <style>
+    .table-success { background-color: #d4edda; }
+    .table-danger { background-color: #f8d7da; }
+  </style>
+</head>
+<body>
+<div class="container mt-4">
+  <h1 class="mb-4" th:text="${logs[0].jobName} + ' - Execution History'">Job Executions</h1>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Summary</h5>
+      <p class="card-text">
+        Total executions: <span th:text="${#lists.size(logs)}"></span><br>
+        Successful: <span th:text="${#lists.size(logs.?[success])}" class="text-success"></span><br>
+        Failed: <span th:text="${#lists.size(logs.?[!success])}" class="text-danger"></span>
+      </p>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead class="thead-dark">
+      <tr>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Duration (ms)</th>
+        <th>Status</th>
+        <th>Error Message</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="log : ${logs}"
+          th:classappend="${log.success} ? 'table-success' : 'table-danger'">
+        <td th:text="${#temporals.format(log.startTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td th:text="${#temporals.format(log.endTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td th:text="${log.durationMs}"></td>
+        <td>
+          <span th:if="${log.success}" class="badge bg-success">Success</span>
+          <span th:if="${!log.success}" class="badge bg-danger">Failed</span>
+        </td>
+        <td th:text="${log.errorMessage} ?: 'None'"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

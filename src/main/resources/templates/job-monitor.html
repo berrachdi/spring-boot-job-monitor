@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Monitoring Dashboard</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        .success { background-color: #d4edda; }
+        .failure { background-color: #f8d7da; }
+        .job-card { transition: all 0.3s; }
+        .job-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .refresh-controls { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4">Job Monitoring Dashboard</h1>
+
+    <!-- Refresh Controls -->
+    <div class="refresh-controls">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <button id="refreshBtn" class="btn btn-primary">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Now
+                    </button>
+                    <select id="refreshInterval" class="form-select">
+                        <option value="0">No Auto Refresh</option>
+                        <option value="10">Every 10 Seconds</option>
+                        <option value="30">Every 30 Seconds</option>
+                        <option value="60">Every 1 Minute</option>
+                        <option value="300">Every 5 Minutes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <span id="lastRefresh" class="text-muted"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div th:each="entry : ${jobLogs}" class="col-md-4 mb-3">
+            <div class="card job-card" th:classappend="${#lists.size(entry.value.?[!success]) > 0} ? 'failure' : 'success'">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${entry.key}">Job Name</h5>
+                    <p class="card-text">
+                        <span th:text="${#lists.size(entry.value)} + ' executions'"></span><br>
+                        <span th:if="${#lists.size(entry.value.?[!success]) > 0}"
+                              th:text="${#lists.size(entry.value.?[!success])} + ' failures'"
+                              class="text-danger"></span>
+                    </p>
+                    <a th:href="@{/job-monitor/ui/{jobName}(jobName=${entry.key})}"
+                       class="btn btn-sm btn-primary">Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const refreshBtn = document.getElementById('refreshBtn');
+        const refreshInterval = document.getElementById('refreshInterval');
+        const lastRefresh = document.getElementById('lastRefresh');
+        let refreshTimer = null;
+
+        // Set initial last refresh time
+        updateLastRefresh();
+
+        // Manual refresh button
+        refreshBtn.addEventListener('click', function() {
+            refreshData();
+        });
+
+        // Auto-refresh selection
+        refreshInterval.addEventListener('change', function() {
+            setupAutoRefresh(parseInt(this.value));
+        });
+
+        // Set initial refresh interval if needed
+        setupAutoRefresh(parseInt(refreshInterval.value));
+
+        function refreshData() {
+            window.location.reload();
+        }
+
+        function setupAutoRefresh(seconds) {
+            // Clear existing timer
+            if (refreshTimer) {
+                clearTimeout(refreshTimer);
+                refreshTimer = null;
+            }
+
+            // Set new timer if interval > 0
+            if (seconds > 0) {
+                refreshTimer = setTimeout(function() {
+                    refreshData();
+                }, seconds * 1000);
+            }
+        }
+
+        function updateLastRefresh() {
+            const now = new Date();
+            lastRefresh.textContent = 'Last refreshed: ' + now.toLocaleTimeString();
+        }
+    });
+</script>
+</body>
+</html>
