@@ -1,6 +1,8 @@
 package io.github.berrachdi.springbootjobmonitor.storage;
 
 import io.github.berrachdi.springbootjobmonitor.model.JobExecutionLog;
+import io.github.berrachdi.springbootjobmonitor.model.Page;
+import io.github.berrachdi.springbootjobmonitor.model.PageRequest;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -75,6 +77,43 @@ public class JdbcJobLogStorage implements JobLogStorage{
     }
 
     @Override
+    public Page<JobExecutionLog> getLogsForJob(String jobName, PageRequest pageRequest) {
+        // Build sort clause
+        String sortClause = "ORDER BY start_time DESC";
+        if (pageRequest.sort() != null && !pageRequest.sort().isEmpty()) {
+            String direction = pageRequest.direction() != null ? pageRequest.direction() : "DESC";
+            sortClause = String.format("ORDER BY %s %s", pageRequest.sort(), direction);
+        }
+
+        // Get total count
+        Long totalCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM job_logs WHERE job_name = ?",
+                Long.class,
+                jobName
+        );
+        long total = totalCount != null ? totalCount : 0L;
+
+        // Get paginated results
+        String sql = String.format("SELECT * FROM job_logs WHERE job_name = ? %s LIMIT ? OFFSET ?", sortClause);
+        List<JobExecutionLog> logs = jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> new JobExecutionLog(
+                        rs.getString(JOB_NAME),
+                        rs.getTimestamp(START_TIME).toLocalDateTime(),
+                        rs.getTimestamp(END_TIME).toLocalDateTime(),
+                        rs.getLong(DURATION_MS),
+                        rs.getBoolean(SUCCESS),
+                        rs.getString(ERROR_MESSAGE)
+                ),
+                jobName,
+                pageRequest.getLimit(),
+                pageRequest.getOffset()
+        );
+
+        return Page.of(logs, total, pageRequest);
+    }
+
+    @Override
     public Map<String, List<JobExecutionLog>> getAllLogs() {
         List<JobExecutionLog> allLogs = jdbcTemplate.query(
                 "SELECT * FROM job_logs ORDER BY start_time DESC " ,
@@ -89,5 +128,37 @@ public class JdbcJobLogStorage implements JobLogStorage{
         );
         return allLogs.stream()
                 .collect(Collectors.groupingBy(JobExecutionLog::jobName));
+    }
+
+    @Override
+    public Page<JobExecutionLog> getAllLogs(PageRequest pageRequest) {
+        // Build sort clause
+        String sortClause = "ORDER BY start_time DESC";
+        if (pageRequest.sort() != null && !pageRequest.sort().isEmpty()) {
+            String direction = pageRequest.direction() != null ? pageRequest.direction() : "DESC";
+            sortClause = String.format("ORDER BY %s %s", pageRequest.sort(), direction);
+        }
+
+        // Get total count
+        Long totalCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM job_logs", Long.class);
+        long total = totalCount != null ? totalCount : 0L;
+
+        // Get paginated results
+        String sql = String.format("SELECT * FROM job_logs %s LIMIT ? OFFSET ?", sortClause);
+        List<JobExecutionLog> logs = jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> new JobExecutionLog(
+                        rs.getString(JOB_NAME),
+                        rs.getTimestamp(START_TIME).toLocalDateTime(),
+                        rs.getTimestamp(END_TIME).toLocalDateTime(),
+                        rs.getLong(DURATION_MS),
+                        rs.getBoolean(SUCCESS),
+                        rs.getString(ERROR_MESSAGE)
+                ),
+                pageRequest.getLimit(),
+                pageRequest.getOffset()
+        );
+
+        return Page.of(logs, total, pageRequest);
     }
 }
