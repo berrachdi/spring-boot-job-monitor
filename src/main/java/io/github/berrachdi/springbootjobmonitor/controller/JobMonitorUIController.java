@@ -29,19 +29,18 @@ public class JobMonitorUIController {
     @GetMapping("/{jobName}")
     public String getJobDetails(
             @PathVariable String jobName,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String direction,
             Model model) {
         
-        // For backward compatibility, if no pagination params, use the old method
-        if (page == 0 && size == 20 && sort == null && direction == null) {
-            model.addAttribute("jobName", jobName);
-            model.addAttribute("logs", monitoringService.getLogsForJob(jobName));
-            model.addAttribute("page", null); // Indicates non-paginated view
-        } else {
-            PageRequest pageRequest = new PageRequest(page, size, sort, direction);
+        // If page or size parameters are present, use paginated view
+        if (page != null || size != null) {
+            int pageNum = page != null ? page : 0;
+            int pageSize = size != null ? size : 20;
+            
+            PageRequest pageRequest = new PageRequest(pageNum, pageSize, sort, direction);
             Page<io.github.berrachdi.springbootjobmonitor.model.JobExecutionLog> pagedLogs = 
                 monitoringService.getLogsForJob(jobName, pageRequest);
             
@@ -50,6 +49,11 @@ public class JobMonitorUIController {
             model.addAttribute("page", pagedLogs);
             model.addAttribute("currentSort", sort != null ? sort : "start_time");
             model.addAttribute("currentDirection", direction != null ? direction : "DESC");
+        } else {
+            // Non-paginated view for backward compatibility
+            model.addAttribute("jobName", jobName);
+            model.addAttribute("logs", monitoringService.getLogsForJob(jobName));
+            model.addAttribute("page", null); // Indicates non-paginated view
         }
         
         return "job-details";
