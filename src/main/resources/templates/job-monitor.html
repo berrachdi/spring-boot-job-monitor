@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Monitoring Dashboard</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .success { background-color: #d4edda; }
+        .failure { background-color: #f8d7da; }
+        .job-card { 
+            transition: all 0.3s ease; 
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .job-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); 
+        }
+        .refresh-controls { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px; 
+            border-radius: 15px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .dashboard-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+            font-size: 3rem;
+        }
+        .stats-overview {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .job-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+        .success-icon { background: #28a745; }
+        .failure-icon { background: #dc3545; }
+        .mixed-icon { background: #ffc107; }
+        .no-data-message {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6c757d;
+        }
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            transition: all 0.3s;
+        }
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            transform: scale(1.05);
+        }
+        .search-box {
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Job Monitoring Dashboard</h1>
+        <p class="text-muted fs-5">Monitor and track your Spring Boot job executions</p>
+    </div>
+
+    <!-- Overall Statistics -->
+    <div class="stats-overview" th:if="${!jobLogs.isEmpty()}">
+        <h4 class="mb-4 text-center">
+            <i class="bi bi-graph-up"></i> Overview Statistics
+        </h4>
+        <div class="row">
+            <div class="col-md-4 stat-item">
+                <div class="stat-number text-primary" th:text="${#maps.size(jobLogs)}">0</div>
+                <div class="text-muted">Total Jobs</div>
+            </div>
+            <div class="col-md-4 stat-item">
+                <div class="stat-number text-info" th:text="${jobLogs.values().size()}">0</div>
+                <div class="text-muted">Job Types</div>
+            </div>
+            <div class="col-md-4 stat-item">
+                <div class="stat-number text-success">
+                    <span th:text="${#maps.size(jobLogs)}">0</span>
+                </div>
+                <div class="text-muted">Active Jobs</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refresh Controls -->
+    <div class="refresh-controls">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="d-flex gap-3 align-items-center">
+                    <button id="refreshBtn" class="btn refresh-btn">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh Now
+                    </button>
+                    <select id="refreshInterval" class="form-select" style="max-width: 200px; background: rgba(255, 255, 255, 0.9);">
+                        <option value="0">No Auto Refresh</option>
+                        <option value="10">Every 10 Seconds</option>
+                        <option value="30" selected>Every 30 Seconds</option>
+                        <option value="60">Every 1 Minute</option>
+                        <option value="300">Every 5 Minutes</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- Search Box -->
+                <div class="search-box ms-auto">
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: rgba(255, 255, 255, 0.9);">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" id="searchJobs" class="form-control" 
+                               placeholder="Search jobs..." 
+                               style="background: rgba(255, 255, 255, 0.9);">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12 text-end">
+                <small id="lastRefresh" class="text-white-50"></small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Cards -->
+    <div class="row" id="jobCardsContainer">
+        <div th:each="entry : ${jobLogs}" class="col-lg-4 col-md-6 mb-4 job-card-wrapper">
+            <div class="card job-card h-100" 
+                 th:classappend="${#lists.size(entry.value.?[!success]) > 0} ? 'failure' : 'success'">
+                <div class="card-body">
+                    <!-- Job Icon -->
+                    <div class="job-icon" 
+                         th:classappend="${#lists.size(entry.value.?[!success]) > 0} ? 'failure-icon' : 'success-icon'">
+                        <i th:class="${#lists.size(entry.value.?[!success]) > 0} ? 'bi bi-exclamation-triangle' : 'bi bi-check-circle'"></i>
+                    </div>
+                    
+                    <!-- Job Name -->
+                    <h5 class="card-title text-center mb-3" th:text="${entry.key}">Job Name</h5>
+                    
+                    <!-- Job Statistics -->
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <div class="fw-bold text-primary" th:text="${#lists.size(entry.value)}">0</div>
+                            <small class="text-muted">Total</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-success" th:text="${#lists.size(entry.value.?[success])}">0</div>
+                            <small class="text-muted">Success</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-danger" th:text="${#lists.size(entry.value.?[!success])}">0</div>
+                            <small class="text-muted">Failed</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Status -->
+                    <div class="text-center mb-3" th:if="${!entry.value.isEmpty()}">
+                        <span class="badge" 
+                              th:classappend="${entry.value[0].success} ? 'bg-success' : 'bg-danger'"
+                              th:text="'Last: ' + (${entry.value[0].success} ? 'Success' : 'Failed')">
+                        </span>
+                        <br>
+                        <small class="text-muted" 
+                               th:text="'at ' + ${#temporals.format(entry.value[0].startTime, 'MM/dd HH:mm')}">
+                        </small>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="text-center">
+                        <a th:href="@{/job-monitor/ui/{jobName}(jobName=${entry.key})}"
+                           class="btn btn-primary btn-sm me-2">
+                            <i class="bi bi-list-ul"></i> View Details
+                        </a>
+                        <a th:href="@{/job-monitor/ui/{jobName}(jobName=${entry.key}, page=0, size=20)}"
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-files"></i> Paginated
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- No Data Message -->
+        <div class="col-12 no-data-message" th:if="${jobLogs.isEmpty()}">
+            <i class="bi bi-inbox" style="font-size: 4rem; opacity: 0.5;"></i>
+            <h3 class="mt-3">No Job Executions Found</h3>
+            <p>Jobs will appear here once they start executing. Make sure your jobs are properly configured and running.</p>
+            <button id="refreshBtn2" class="btn btn-primary mt-3">
+                <i class="bi bi-arrow-clockwise"></i> Check Again
+            </button>
+        </div>
+    </div>
+    
+    <!-- Quick Stats Footer -->
+    <div class="mt-5 pt-4 border-top" th:if="${!jobLogs.isEmpty()}">
+        <div class="row text-center">
+            <div class="col-md-12">
+                <small class="text-muted">
+                    Dashboard showing data from <strong th:text="${#maps.size(jobLogs)}">0</strong> job types
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const refreshBtn = document.getElementById('refreshBtn');
+        const refreshBtn2 = document.getElementById('refreshBtn2');
+        const refreshInterval = document.getElementById('refreshInterval');
+        const lastRefresh = document.getElementById('lastRefresh');
+        const searchJobs = document.getElementById('searchJobs');
+        const jobCardsContainer = document.getElementById('jobCardsContainer');
+        let refreshTimer = null;
+
+        // Set initial last refresh time
+        updateLastRefresh();
+
+        // Manual refresh buttons
+        [refreshBtn, refreshBtn2].forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    refreshData();
+                });
+            }
+        });
+
+        // Auto-refresh selection
+        if (refreshInterval) {
+            refreshInterval.addEventListener('change', function() {
+                setupAutoRefresh(parseInt(this.value));
+            });
+            
+            // Set initial refresh interval
+            setupAutoRefresh(parseInt(refreshInterval.value));
+        }
+
+        // Search functionality
+        if (searchJobs) {
+            searchJobs.addEventListener('input', function() {
+                filterJobs(this.value);
+            });
+        }
+
+        function refreshData() {
+            // Add loading state
+            const refreshBtns = document.querySelectorAll('[id^="refreshBtn"]');
+            refreshBtns.forEach(btn => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Refreshing...';
+                btn.disabled = true;
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 1000);
+            });
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        }
+
+        function setupAutoRefresh(seconds) {
+            // Clear existing timer
+            if (refreshTimer) {
+                clearTimeout(refreshTimer);
+                refreshTimer = null;
+            }
+
+            // Set new timer if interval > 0
+            if (seconds > 0) {
+                refreshTimer = setTimeout(function() {
+                    refreshData();
+                }, seconds * 1000);
+            }
+        }
+
+        function updateLastRefresh() {
+            const now = new Date();
+            if (lastRefresh) {
+                lastRefresh.textContent = 'Last refreshed: ' + now.toLocaleTimeString();
+            }
+        }
+
+        function filterJobs(searchTerm) {
+            const jobCards = document.querySelectorAll('.job-card-wrapper');
+            const lowerSearchTerm = searchTerm.toLowerCase();
+            
+            jobCards.forEach(card => {
+                const jobTitle = card.querySelector('.card-title').textContent.toLowerCase();
+                if (jobTitle.includes(lowerSearchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results message
+            const visibleCards = Array.from(jobCards).filter(card => card.style.display !== 'none');
+            const noDataMsg = document.querySelector('.no-data-message');
+            
+            if (visibleCards.length === 0 && searchTerm.trim() !== '') {
+                if (!document.getElementById('no-search-results')) {
+                    const noResults = document.createElement('div');
+                    noResults.id = 'no-search-results';
+                    noResults.className = 'col-12 text-center text-muted py-5';
+                    noResults.innerHTML = `
+                        <i class="bi bi-search" style="font-size: 3rem; opacity: 0.5;"></i>
+                        <h4 class="mt-3">No jobs found</h4>
+                        <p>No jobs match your search criteria for "${searchTerm}"</p>
+                    `;
+                    jobCardsContainer.appendChild(noResults);
+                }
+            } else {
+                const existingNoResults = document.getElementById('no-search-results');
+                if (existingNoResults) {
+                    existingNoResults.remove();
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>
